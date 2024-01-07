@@ -11,35 +11,32 @@ class Client {
 }
 
 class Cashier extends Thread {
-    public static String clientName() {
+    public static void clientName() {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter client name (or '0' to stop session): ");
-        String clientName = scanner.next();
+        Client.clientName = scanner.next();
 
         if (Client.clientName.equalsIgnoreCase("0")) {
             System.out.print("Sure? ('0' to stop session or Client name): ");
             Client.clientName = scanner.next();
-            if (Client.clientName.equalsIgnoreCase("0")) {
-                return "0";
-            }
         }
-        return clientName;
     }
 
-    public static String serviceType() {
+    public static void serviceType() {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter service type: ");
-        String serviceType = scanner.next().toLowerCase().trim();
+        Client.serviceType = scanner.next().toLowerCase().trim();
         while (!(Client.serviceType.equals("1") | Client.serviceType.equals("2") | Client.serviceType.equals("3"))) {
             System.out.print("Enter service type: ");
             Client.serviceType = scanner.next().toLowerCase().trim();
         }
         int quantityOfService = -1;
 
-        switch (serviceType) {
+        switch (Client.serviceType) {
             case "1":
-                System.out.println("Amount of Fuel: ");
+
                 while (quantityOfService < 0) {
+                    System.out.println("Amount of Fuel: ");
                     try {
                         quantityOfService = Integer.parseInt(scanner.next());
                     } catch (Exception e) {
@@ -51,10 +48,12 @@ class Cashier extends Thread {
                 Client.queueSizeOfService = quantityOfService;
                 //Cashiers.allMoney += quantityOfService * 55;
                 //Cashiers.fuelSold += quantityOfService;
-                return "Fuel: " + quantityOfService + "liters";
+                //return "Fuel: " + quantityOfService + "liters";
+                break;
             case "2":
-                System.out.println("Amount of Diesel: ");
+
                 while (quantityOfService < 0) {
+                    System.out.println("Amount of Diesel: ");
                     try {
                         quantityOfService = Integer.parseInt(scanner.next());
                     } catch (Exception e) {
@@ -66,10 +65,12 @@ class Cashier extends Thread {
                 Client.queueSizeOfService = quantityOfService;
                 //Cashiers.allMoney += quantityOfService * 65;
                 //Cashiers.dieselSold += quantityOfService;
-                return "Diesel: " + quantityOfService + "liters";
+                //return "Diesel: " + quantityOfService + "liters";
+                break;
             case "3":
-                System.out.println("Amount of Coffee: ");
                 while (quantityOfService < 0) {
+                    System.out.println("Amount of Coffee: ");
+
                     try {
                         quantityOfService = Integer.parseInt(scanner.next());
                     } catch (Exception e) {
@@ -81,20 +82,22 @@ class Cashier extends Thread {
                 Client.queueSizeOfService = quantityOfService;
                 //Cashiers.allMoney += quantityOfService * 100;
                 //Cashiers.coffeeSold += quantityOfService;
-                return "Coffee: " + quantityOfService + "cups";
+                //return "Coffee: " + quantityOfService + "cups";
+                break;
             default:
                 System.out.println("Invalid service");
         }
-        return "";
+        //return "";
     }
 
-    public static boolean payment() {
+    public static void payment() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Waiting for payment (Ok)");
         String pay = scanner.next().trim().toLowerCase();
         while (!pay.equals("ok")) {
             if (pay.equalsIgnoreCase("No money")) {
-                return false;
+                //return false;
+                Client.payment = false;
             }
             System.out.println("Waiting for payment (Ok)");
             pay = scanner.next().trim().toLowerCase();
@@ -110,11 +113,13 @@ class Cashier extends Thread {
                 Cashiers.coffeeSold += Client.queueSizeOfService;
                 Cashiers.allMoney += Client.queuePrice;
         }
-        return true;
+        //return true;
+        Client.payment = true;
     }
 
     public static void goodLuck() {
         System.out.println("Good Luck");
+        System.out.println();
     }
 
     @Override
@@ -124,20 +129,21 @@ class Cashier extends Thread {
         //while (!Thread.interrupted()) {
         Scanner scanner = new Scanner(System.in);
 
-        Client.clientName = clientName();
+        clientName();
         if (Client.clientName.equalsIgnoreCase("0")) {
             //break;
+        }else {
+            serviceType();
+
+            payment();
+
+            try {
+                Thread.sleep(1000);        //Приостановка потока на 1 сек.
+            } catch (InterruptedException e) {
+                return;    //Завершение потока после прерывания
+            }
         }
 
-        Client.serviceType = serviceType();
-
-        Client.payment = payment();
-
-        try {
-            Thread.sleep(1000);        //Приостановка потока на 1 сек.
-        } catch (InterruptedException e) {
-            return;    //Завершение потока после прерывания
-        }
         goodLuck();
         //}
     }
@@ -186,15 +192,13 @@ public class Cashiers {
                 System.out.println("First cashier");
                 scanner = new Scanner(System.in);
 
-                clientName = Cashier.clientName();
-                if (clientName.equalsIgnoreCase("0")) {
-                    break;
+              Cashier.clientName();
+                if (Client.clientName.equalsIgnoreCase("0")) {
+                    //break;
+                }else{
+                    Cashier.serviceType();
+                    Cashier.payment();
                 }
-
-                serviceType = Cashier.serviceType();
-
-                payment = Cashier.payment();
-
                 Cashier.goodLuck();
             }
         }
